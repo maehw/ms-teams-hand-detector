@@ -4,7 +4,8 @@ The Python script in this repository tries to detect a raised hand in Microsoft 
 
 The detection is based on computer vision (OpenCV) pattern matching using a reference symbol.
 
-In my case I've used a micro:bit to receive and react on the serial data. The `.hex` file contained in this repository can be flashed on a micro:bit v2, plays an animation and a sound. The source can be accessed under https://makecode.microbit.org/_gk0CmXCuh3of.
+In my case I've used a micro:bit to receive and react on the serial data. Both `.hex` files contained in this repository can be flashed on a micro:bit v2. The micro:bit will play an animation and make a sound when a hand has been raised. The source can be accessed under https://makecode.microbit.org/_gk0CmXCuh3of.
+If you also want to move a servo (e.g. to move a cardboard hand) dependent on whether a hand has been raised or lowered use the following code: https://makecode.microbit.org/_ewy3tvETmETp.
 
 ![Blocks shown in Microsoft MakeCode for micro:bit](microbit-ide.png)
 
@@ -78,7 +79,7 @@ pyinstaller ms_teams_hand_detector.py
 
 # TODOs/Ideas
 
-- [ ] Add support for controlling a servo motor from the micro:bit (should be easy, but the hardware I currently have at hand won't play)
+- [x] Add support for controlling a servo motor from the micro:bit (should be easy, but the hardware I currently have at hand won't play)
 - [ ] Automatic build of standalone application and test on different platforms (Windows, Linux, Mac OS)
 
 *(This section may be migrated to https://github.com/maehw/ms-teams-hand-detector/issues.)*
