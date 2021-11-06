@@ -78,7 +78,7 @@ pyinstaller ms_teams_hand_detector.py
 
 # TODOs/Ideas
 
-- [ ] Add support for controling a servo motor from the micro:bit (should be easy, but the hardware I currently have at hand won't play)
+- [ ] Add support for controlling a servo motor from the micro:bit (should be easy, but the hardware I currently have at hand won't play)
 - [ ] Automatic build of standalone application and test on different platforms (Windows, Linux, Mac OS)
 
 *(This section may be migrated to https://github.com/maehw/ms-teams-hand-detector/issues.)*
