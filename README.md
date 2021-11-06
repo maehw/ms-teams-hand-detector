@@ -9,6 +9,8 @@ If you also want to move a servo (e.g. to move a cardboard hand) dependent on wh
 
 ![Blocks shown in Microsoft MakeCode for micro:bit](microbit-ide.png)
 
+![Prototype with lowered hand](prototype_hand_lowered.jpg)
+
 It should be easy to implement own actions/reactions to raised/lowered hands (the edge detection is already in use).
 
 # How To
