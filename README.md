@@ -1,6 +1,6 @@
 # README
 
-The Python script in this repository tries to detect a raised hand in Microsoft Teams meetings, outputs the detection results to the console and send a string to a serial device.
+The Python script in this repository tries to detect a raised hand in Microsoft Teams meetings, outputs the detection results to the console and send a string to a serial device. It's originally meant for meetings that are "hybrid" - some people take part in presence, some only digitally/online (better wording is welcome; native speakers are welcome to suggest something else).
 
 The detection is based on computer vision (OpenCV) pattern matching using a reference symbol.
 
@@ -75,6 +75,13 @@ pyinstaller ms_teams_hand_detector.py
 ```
 
 *Documentation of this section is WIP, help to contribute*
+
+# TODOs/Ideas
+
+- [ ] Add support for controling a servo motor from the micro:bit (should be easy, but the hardware I currently have at hand won't play)
+- [ ] Automatic build of standalone application and test on different platforms (Windows, Linux, Mac OS)
+
+*(This section may be migrated to https://github.com/maehw/ms-teams-hand-detector/issues.)*
 
 # Contributing
 
