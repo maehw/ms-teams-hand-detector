@@ -66,6 +66,9 @@ Optional arguments are:
 * `-m`: the monitor number (defaults to `0`)
 * `-r`: the name of the image resource (defaults to `the-hand.png`)
 
+
+![Screenshot of the script's standard output in a terminal](executed-script.png)
+
 ### Example calls
 
 Only output to console (only if `debug = True`):
