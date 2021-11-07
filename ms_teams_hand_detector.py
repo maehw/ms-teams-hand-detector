@@ -4,8 +4,10 @@ import numpy as np
 import time
 import mss
 import serial
+from datetime import datetime
 
 if __name__ == "__main__":
+    serial_tx_errors = 0
     debug = True  # set to false to have a very quiet mode
 
     parser = argparse.ArgumentParser(description='%(prog)s')
@@ -77,8 +79,12 @@ if __name__ == "__main__":
             detection = len(loc[0]) > 0
 
             if debug:
+                now = datetime.now()
+
+                current_time = now.strftime("%H:%M:%S")
+
                 fps = 1 / (time.time() - last_time)
-                print(f"detection: {detection}, fps: {fps:.1f}")
+                print(f"[{current_time}] detection: {detection}, fps: {fps:.1f}, tx errors: {serial_tx_errors}")
 
             if detection != last_detection:
                 if detection:
@@ -89,8 +95,19 @@ if __name__ == "__main__":
                     if debug:
                         print("Event: hand lowered!")
                     serial_str = b'D\x0a'
-                if ser:
-                    ser.write(serial_str)
+
+                # try to send via serial
+                try:
+                    if ser:
+                        ser.write(serial_str)
+                except SerialException as e:
+                    serial_tx_errors = serial_tx_errors + 1
+                    if e.errno == 13:  # write failed: [Errno 6] Device not configured
+                        # retry once, may work or may fail; might want to re-open the serial
+                        if ser:
+                            ser.write(serial_str)
+                    else:  # do not catch every exception
+                        raise e
 
             # store for next iteration
             last_detection = detection
