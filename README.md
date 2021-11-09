@@ -48,7 +48,7 @@ Some Python modules are required for taking screenshots and using computer visio
 pip install argparse
 pip install opencv-python
 pip install mss
-pip instll pyserial
+pip install pyserial
 ```
 
 If you want to react, you may also want to use a BBC micro:bit, but any other hardware should do the trick (e.g. any  Arduino board).
