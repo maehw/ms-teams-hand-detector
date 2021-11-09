@@ -92,18 +92,18 @@ if __name__ == "__main__":
             edged = cv2.Canny(gray, 50, 200)
 
             result = cv2.matchTemplate(edged, template, cv2.TM_CCOEFF)
-            (_, maxVal, _, maxLoc) = cv2.minMaxLoc(result)
+            (_, detection_max_val, _, detection_max_loc) = cv2.minMaxLoc(result)
 
             loc = np.where(result >= args.threshold)
             detection = len(loc[0]) > 0
 
             if debug:
                 now = datetime.now()
-
                 current_time = now.strftime("%H:%M:%S")
 
                 fps = 1 / (time.time() - last_time)
-                print(f"[{current_time}] detection: {detection}, fps: {fps:.1f}, tx errors: {serial_tx_errors}")
+                print(f"[{current_time}] detection: {detection}, fps: {fps:.1f}, "
+                      f"maxval: {detection_max_val:.0f}, maxloc: {detection_max_loc}, tx errors: {serial_tx_errors}")
 
             if detection != last_detection:
                 if detection:
