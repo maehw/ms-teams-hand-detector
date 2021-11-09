@@ -20,11 +20,15 @@ The detection is based on computer vision (OpenCV) pattern matching using a refe
 
 When a participant raises his or her hand, the script should find out that the symbol is visible on the screen - depending on a specific, configurable threshold value. On change of detection state (hand/ no hand), the script writes a message to the serial interface.
 
-In my case I've used a [BBC micro:bit](https://microbit.org/) to receive and react on the serial data. There are two pre-compiled `.hex` files contained in this repository. Those can be flashed on a micro:bit v2.
+In my case I've used a [BBC micro:bit](https://microbit.org/) to receive and react on the serial data. There is a pre-compiled `.hex` file contained in this repository which can be flashed on a micro:bit v2 (not tested for micro:bit v1 yet).
 
-The micro:bit will play an animation and make a sound when a hand has been raised. The source can be accessed under https://makecode.microbit.org/_gk0CmXCuh3of.
+Depending on the configured serial message that is sent from the PC to the micro:bit, the micro:bit will (in this order)
 
-If you also want to move a servo (e.g. to move a cardboard hand) dependent on whether a hand has been raised or lowered use the following code: https://makecode.microbit.org/_ewy3tvETmETp.
+- play an animation and/or
+- move the servo montor and/or
+- make a sound
+
+when the first hand is raised or the last hand has been lowered. The source can be accessed under https://makecode.microbit.org/_LpmHpi9oMhXe.
 
 ![Blocks shown in Microsoft MakeCode for micro:bit](microbit-ide.png)
 

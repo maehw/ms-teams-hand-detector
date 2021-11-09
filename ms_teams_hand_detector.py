@@ -8,6 +8,21 @@ from datetime import datetime
 
 if __name__ == "__main__":
     serial_tx_errors = 0
+
+    # configure your messages to be sent on a
+    # - first hand detected and
+    # - last hand lowered events,
+    # where the following symbols are used:
+    # - 'P' to PLAY the hand raised sound,
+    # - 'S' to move the SERVO motor to the hand raised position,
+    # - 'A' to play the hand raised ANIMATION,
+    # - 'p' to PLAY the hand lowered sound,
+    # - 's' to move the SERVO motor to the hand lowered position,
+    # - 'a' to play the hand lowered ANIMATION
+    serial_msg_on_raise = b'PAS\x0d'
+    serial_msg_on_lowered = b'pas\x0d'
+    serial_msg_on_init = serial_msg_on_lowered
+
     debug = True  # set to false to have a very quiet mode
 
     parser = argparse.ArgumentParser(description='%(prog)s')
@@ -46,6 +61,10 @@ if __name__ == "__main__":
 
     if debug:
         print(f"ser = {ser}")
+
+    # try to send initialization message via serial
+    if ser:
+        ser.write(serial_msg_on_init)
 
     template = cv2.imread(args.resource_path)
     template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
@@ -89,22 +108,24 @@ if __name__ == "__main__":
             if detection != last_detection:
                 if detection:
                     if debug:
-                        print("Event: hand raised!")
-                    serial_str = b'U\x0a'
+                        print(f"[{current_time}] event: hand raised!")
+                    serial_str = serial_msg_on_raise
                 else:
                     if debug:
-                        print("Event: hand lowered!")
-                    serial_str = b'D\x0a'
+                        print(f"[{current_time}] event: hand lowered!")
+                    serial_str = serial_msg_on_lowered
 
                 # try to send via serial
                 try:
                     if ser:
+                        print(f"[{current_time}] sending message via serial: {serial_str}")
                         ser.write(serial_str)
                 except SerialException as e:
                     serial_tx_errors = serial_tx_errors + 1
                     if e.errno == 13:  # write failed: [Errno 6] Device not configured
                         # retry once, may work or may fail; might want to re-open the serial
                         if ser:
+                            print(f"[{current_time}] resending message via serial: {serial_str}")
                             ser.write(serial_str)
                     else:  # do not catch every exception
                         raise e
