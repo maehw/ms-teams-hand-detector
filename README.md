@@ -2,7 +2,7 @@
 
 ## What is this?
 
-The Python script in this repository detects when meeting participants in Microsoft Teams meetings raise or lower their virtual hand.
+The Python script in this repository detects when meeting participants in Microsoft Teams meetings raise or lower their virtual hand. Microsoft did not seem to provide an application programming interface (API) ([Microsoft Q&A: Is there a way to detect raised hand during an online meeting using API](https://docs.microsoft.com/en-us/answers/questions/173770/is-there-a-way-to-detect-raised-hand-during-an-onl.html)), so this project has been started as a workaround. Related: [Microsoft Support: Raise your hand in a Teams meeting / See who has their hand raised](https://support.microsoft.com/en-us/office/raise-your-hand-in-a-teams-meeting-bb2dd8e1-e6bd-43a6-85cf-30822667b372).
 
 The detection result is output to the console (standard output). Additionally, a string can be sent to a serial device when a hand is raised or lowered. Currently only two state transitions cause those events: *no hand → first hand* and *at least one hand → no hand* (e.g. not also one hand → two hands).
 
