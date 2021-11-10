@@ -49,10 +49,7 @@ You also need Python 3 and some more Python modules:
 Some Python modules are required for taking screenshots and using computer vision to detect the hand (see the `import` statements at the top of the Python script, some more may be require bot not listed here):
 
 ```
-pip install argparse
-pip install opencv-python
-pip install mss
-pip install pyserial
+pip install -r requirements.txt
 ```
 
 If you want to react, you may also want to use a BBC micro:bit, but any other hardware should do the trick (e.g. any  Arduino board).
