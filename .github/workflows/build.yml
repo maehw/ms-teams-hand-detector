@@ -24,22 +24,13 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Setup Python
       - name: Setup Python
         uses: actions/setup-python@v1
         with:
           python-version: '3.x'
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Install Python dependencies using pip
       - name: Install dependencies
-        run: pip install pre-commit
+        run: pip install pyinstaller
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+      - name: Run PyInstaller
+        run: pyinstaller ms_teams_hand_detector.py
