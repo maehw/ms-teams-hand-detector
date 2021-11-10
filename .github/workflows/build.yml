@@ -5,17 +5,41 @@ on:
   # Triggers the workflow on push event for the current feature branch
   pull_request:
   push:
-    branches: [ feature/github-actions ]
+    # branches: [ feature/github-actions ]
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v0.1.0, v0.1.1, etc.
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
+  createrelease:
+    name: Create release
+    runs-on: [ubuntu-latest]
+    steps:
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: true
+    - name: Output Release URL File
+      run: echo "${{ steps.create_release.outputs.upload_url }}" > release_url.txt
+    - name: Save Release URL File for publish
+      uses: actions/upload-artifact@v1
+      with:
+        name: release_url
+        path: release_url.txt
+
   build:
-    # The type of runner that the job will run on
+    name: Build executables
     runs-on: ${{ matrix.os }}
+    needs: createrelease
     strategy:
         matrix:
             os: [ubuntu-latest, windows-latest, macOS-latest]
