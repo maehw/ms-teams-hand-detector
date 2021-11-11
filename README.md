@@ -12,6 +12,10 @@ It should be easy to implement own actions/reactions to raised/lowered hands (th
 
 It's originally meant for meetings that are "hybrid" - some people take part in presence, some only digitally/online (better wording is welcome; native speakers are welcome to suggest something else). This should allow online participants to become more visible by a group of participants in real-life.
 
+## What isn't this?
+
+This is not about gesture recognition - the script does not detect raised hands from webcam video streams.
+
 ## How does it work?
 
 The detection logic is all done in the Python script `ms_teams_hand_detector.py`.
