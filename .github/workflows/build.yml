@@ -48,18 +48,21 @@ jobs:
     strategy:
       matrix:
         include:
-#          - os: windows-latest
-#            TARGET: windows
-#            ZIP_COMMAND: zip
-#            OUT_FILE_NAME: ms-teams-hand-detector_windows.zip
+          - os: windows-latest
+            TARGET: windows
+            ZIP_COMMAND: cp ./dist/ms-teams-hand-detector/ms-teams-hand-detector.exe ms-teams-hand-detector_windows.exe
+            OUT_FILE_NAME: ms-teams-hand-detector_windows.exe
+            CONTENT_TYPE: application/vnd.microsoft.portable-executable
           - os: ubuntu-latest
             TARGET: ubuntu
             ZIP_COMMAND: zip -r ms-teams-hand-detector_ubuntu.zip dist
             OUT_FILE_NAME: ms-teams-hand-detector_ubuntu.zip
+            CONTENT_TYPE: application/zip
           - os: macos-latest
             TARGET: macos
             ZIP_COMMAND: zip -r ms-teams-hand-detector_macos.zip dist
             OUT_FILE_NAME: ms-teams-hand-detector_macos.zip
+            CONTENT_TYPE: application/zip
     steps:
       # Checks-out the repository under $GITHUB_WORKSPACE, so the job can access it
       - uses: actions/checkout@v2
@@ -105,4 +108,4 @@ jobs:
           upload_url: ${{ steps.get_release_info.outputs.upload_url }}
           asset_path: ${{ matrix.OUT_FILE_NAME}}
           asset_name: ${{ matrix.OUT_FILE_NAME}}
-          asset_content_type: application/zip
+          asset_content_type: ${{ matrix.CONTENT_TYPE}}
