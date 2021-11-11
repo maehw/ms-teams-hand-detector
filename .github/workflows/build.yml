@@ -50,7 +50,7 @@ jobs:
         include:
           - os: windows-latest
             TARGET: windows
-            ZIP_COMMAND: cp ./dist/ms-teams-hand-detector/ms-teams-hand-detector.exe ms-teams-hand-detector_windows.exe
+            ZIP_COMMAND: cd ./dist/ms-teams-hand-detector/ && dir && copy ./ms-teams-hand-detector.exe ../../ms-teams-hand-detector_windows.exe
             OUT_FILE_NAME: ms-teams-hand-detector_windows.exe
             CONTENT_TYPE: application/vnd.microsoft.portable-executable
           - os: ubuntu-latest
