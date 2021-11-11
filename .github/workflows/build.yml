@@ -69,11 +69,11 @@ jobs:
       - name: Call the Python script to show its usage
         run: python ms_teams_hand_detector.py --help
 
-      - name: Install dependencies for deployment
-        run: pip install pyinstaller
+#      - name: Install dependencies for deployment
+#        run: pip install pyinstaller
 
-      - name: Run PyInstaller on ${{matrix.TARGET}} for creation of executable
-        run: pyinstaller ms_teams_hand_detector.py
+#      - name: Run PyInstaller on ${{matrix.TARGET}} for creation of executable
+#        run: pyinstaller ms_teams_hand_detector.py
 
       - name: Load Release URL File from release job
         uses: actions/download-artifact@v1
