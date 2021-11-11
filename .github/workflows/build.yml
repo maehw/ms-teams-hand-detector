@@ -63,11 +63,11 @@ jobs:
         with:
           python-version: '3.x'
 
-#      - name: Install dependencies for testing
-#        run: pip install -r requirements.txt
+      - name: Install dependencies for testing
+        run: pip install -r requirements.txt
 
-#      - name: Call the Python script to show its usage
-#        run: python ms_teams_hand_detector.py --help
+      - name: Call the Python script to show its usage
+        run: python ms_teams_hand_detector.py --help
 
 #      - name: Install dependencies for deployment
 #        run: pip install pyinstaller
