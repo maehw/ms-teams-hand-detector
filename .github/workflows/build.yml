@@ -48,15 +48,18 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: windows-latest
-            TARGET: windows
-            OUT_FILE_NAME: the-hand_win.png
+#          - os: windows-latest
+#            TARGET: windows
+#            ZIP_COMMAND: zip
+#            OUT_FILE_NAME: ms-teams-hand-detector_windows.zip
           - os: ubuntu-latest
             TARGET: ubuntu
-            OUT_FILE_NAME: the-hand_ubuntu.png
+            ZIP_COMMAND: zip -r ms-teams-hand-detector_ubuntu.zip dist
+            OUT_FILE_NAME: ms-teams-hand-detector_ubuntu.zip
           - os: macos-latest
             TARGET: macos
-            OUT_FILE_NAME: the-hand_macos.png
+            ZIP_COMMAND: zip -r ms-teams-hand-detector_macos.zip dist
+            OUT_FILE_NAME: ms-teams-hand-detector_macos.zip
     steps:
       # Checks-out the repository under $GITHUB_WORKSPACE, so the job can access it
       - uses: actions/checkout@v2
@@ -78,6 +81,9 @@ jobs:
 #      - name: Run PyInstaller on ${{matrix.TARGET}} for creation of executable
 #        run: pyinstaller ms_teams_hand_detector.py
 
+      - name: Zip the executable
+        run: ${{matrix.ZIP_COMMAND}}
+
       - name: Load Release URL File from release job
         uses: actions/download-artifact@v1
         with:
@@ -97,6 +103,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.get_release_info.outputs.upload_url }}
-          asset_path: ./the-hand.png
+          asset_path: ${{ matrix.OUT_FILE_NAME}}
           asset_name: ${{ matrix.OUT_FILE_NAME}}
-          asset_content_type: image/png
+          asset_content_type: application/zip
