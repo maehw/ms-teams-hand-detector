@@ -22,7 +22,7 @@ jobs:
     steps:
     - name: Get date & time for release name
       id: datetime
-      run: echo "::set-output name=datetime::$(date +'%Y-%m-%d_%H-%M-%s')"
+      run: echo "::set-output name=datetime::$(date +'%Y-%m-%d_%H-%M-%S')"
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -75,11 +75,11 @@ jobs:
       - name: Call the Python script to show its usage
         run: python ms_teams_hand_detector.py --help
 
-#      - name: Install dependencies for deployment
-#        run: pip install pyinstaller
+      - name: Install dependencies for deployment
+        run: pip install pyinstaller
 
-#      - name: Run PyInstaller on ${{matrix.TARGET}} for creation of executable
-#        run: pyinstaller ms_teams_hand_detector.py
+      - name: Run PyInstaller on ${{matrix.TARGET}} for creation of executable
+        run: pyinstaller ms_teams_hand_detector.py
 
       - name: Zip the executable
         run: ${{matrix.ZIP_COMMAND}}
