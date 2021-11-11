@@ -43,8 +43,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: createrelease
     strategy:
-        matrix:
-            os: [ubuntu-latest, windows-latest, macOS-latest]
+      matrix:
+        include:
+          - os: windows-latest
+            TARGET: windows
+            OUT_FILE_NAME: ms-teams-hand_win.exe
+          - os: macos-latest
+            TARGET: macos
+            OUT_FILE_NAME: ms-teams-hand_macos.zip
 
     steps:
       # Checks-out the repository under $GITHUB_WORKSPACE, so the job can access it
@@ -64,5 +70,28 @@ jobs:
       - name: Install dependencies for deployment
         run: pip install pyinstaller
 
-      - name: Run PyInstaller for creation of executable
+      - name: Run PyInstaller on ${{matrix.TARGET}} for creation of executable
         run: pyinstaller ms_teams_hand_detector.py
+
+      - name: Load Release URL File from release job
+        uses: actions/download-artifact@v1
+        with:
+          name: release_url
+  
+      - name: Get release file name and upload URL
+        id: get_release_info
+        shell: bash
+        run: |
+          value=`cat release_url/release_url.txt`
+          echo ::set-output name=upload_url::$value
+
+      - name: Upload release asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_release_info.outputs.upload_url }}
+          asset_path: ./the-hand.png
+          asset_name: ${{ matrix.OUT_FILE_NAME}}
+          asset_content_type: image/png
