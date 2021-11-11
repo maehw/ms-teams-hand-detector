@@ -50,10 +50,12 @@ Some Python modules are required for taking screenshots and using computer visio
 
 ```
 pip install argparse
-pip install opencv-python
+pip install -Iv opencv-python==4.5.3.56
 pip install mss
 pip install pyserial
 ```
+
+*(Note: `opencv-python` currently needs to be downgraded when creating an executable with PyInstaller; related: https://github.com/maehw/ms-teams-hand-detector/issues/1)*
 
 If you want to react, you may also want to use a BBC micro:bit, but any other hardware should do the trick (e.g. any  Arduino board).
 
@@ -125,6 +127,8 @@ pip install pyinstaller
 pyinstaller ms_teams_hand_detector.py
 ```
 
-It would even be cooler if the software could be build using some CI toolchain in the background.
+The executable can be found in the `dist` subfolder after a successful build. Don't forget to copy `the-hand.png`.
 
-*Documentation of this section is WIP, help to contribute*
+It would even be cooler if the software could be built using some CI toolchain in the background. This is currently happening in the `feature/github-actions` branch.
+
+*Implementation and documentation of this section is WIP. I'd be happy if you helped contribute.*
