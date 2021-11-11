@@ -3,4 +3,4 @@ argparse
 mss
 pyserial
 # Must use a specific version for opencv-python, see issue #1
-opencv-python~=4.5.3
+opencv-python<=4.5.3
