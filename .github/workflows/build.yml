@@ -21,15 +21,16 @@ jobs:
     runs-on: [ubuntu-latest]
     steps:
     - name: Get date & time for release name
-      run: echo "::set-env name=NOW::$(date +'%Y-%m-%d_%H-%M-%S')"
+      id: datetime
+      run: echo "::set-output name=datetime::$(date +'%Y-%m-%d_%H-%M-%s')"
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: $${{ env.NOW }}
-        release_name: Release $${{ env.NOW }}
+        tag_name: "rc-${{ steps.datetime.outputs.datetime }}"
+        release_name: "RC ${{ steps.datetime.outputs.datetime }}"
         draft: false
         prerelease: true
     - name: Output Release URL File
