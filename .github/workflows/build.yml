@@ -6,7 +6,7 @@ on:
   pull_request:
   push:
     # for now (still testing things):
-    branches: [ feature/github-actions ]
+    # branches: [ feature/github-actions ]
     # for later:
     # tags:
     #  - 'v*' # Push events to matching v*, i.e. v0.1.0, v0.1.1, etc.
@@ -61,7 +61,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v1
         with:
-          python-version: '3.x'
+          python-version: '3.9.7'
 
       - name: Install dependencies for testing
         run: pip install -r requirements.txt
