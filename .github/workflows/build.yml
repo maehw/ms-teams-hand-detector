@@ -47,11 +47,13 @@ jobs:
         include:
           - os: windows-latest
             TARGET: windows
-            OUT_FILE_NAME: ms-teams-hand_win.exe
+            OUT_FILE_NAME: the-hand_win.png
+          - os: ubuntu-latest
+            TARGET: ubuntu
+            OUT_FILE_NAME: the-hand_ubuntu.png
           - os: macos-latest
             TARGET: macos
-            OUT_FILE_NAME: ms-teams-hand_macos.zip
-
+            OUT_FILE_NAME: the-hand_macos.png
     steps:
       # Checks-out the repository under $GITHUB_WORKSPACE, so the job can access it
       - uses: actions/checkout@v2
