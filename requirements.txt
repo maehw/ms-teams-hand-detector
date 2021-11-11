@@ -1,5 +1,6 @@
-# Requirements without Version Specifiers
+# Requirements without version specifiers
 argparse
-opencv-python
 mss
 pyserial
+# Must use a specific version for opencv-python, see issue #1
+opencv-python==4.5.3.56
