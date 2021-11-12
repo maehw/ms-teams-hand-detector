@@ -42,15 +42,17 @@ when the first hand is raised or the last hand has been lowered. The source can 
 
 ## How can I use it?
 
+There are currently two methods to use this software. One ist to run it using a Python interpreter (recommended at this point in time). The other is to use a [pre-built release](https://github.com/maehw/ms-teams-hand-detector/releases) - executables for Windows, Linux and MacOS are available.
+
 ### Prerequisites and dependencies
 
-You need a computer running Microsoft Teams.
+First of all you need a computer running Microsoft Teams.
 
-Take a screenshot of the raised hand symbol that is shown in Microsoft Teams in the participants list on the right hand side. Then cut it (about 32 x 32 pixels) and place it in the same folder as the Python script. Call the image file `the-hand.png` (or specify a different name). It is not part of this repository due to copyright uncertainties. Also it may be subject to change in future releases of Microsoft Teams.
+Take a screenshot of the raised hand symbol that is shown in Microsoft Teams in the participants list on the right hand side. Then cut it (about 32 x 32 pixels) and place it in the same folder as the Python script. Replace the dummy image file `the-hand.png` (or specify a different name). It is not part of this repository due to copyright uncertainties. Also it may be subject to change in future releases of Microsoft Teams.
 
-You also need Python 3 and some more Python modules:
+You also need Python 3 and some more Python modules (when you do not use the pre-built standalone executable):
 
-Some Python modules are required for taking screenshots and using computer vision to detect the hand (see the `import` statements at the top of the Python script, some more may be require bot not listed here):
+Some Python modules are required for taking screenshots and using computer vision to detect the hand (see the `import` statements at the top of the Python script):
 
 ```
 pip install -r requirements.txt
@@ -111,25 +113,3 @@ Help me testing this with your specific setup. I am happy for any feedback. Ther
 Feel free to contribute. ;) Any issues and merge requests are welcome.
 
 It would be great if you could run `check_code.py` on your code before you send a merge request.
-
-### TODOs/Ideas
-
-- [x] Add support for controlling a servo motor from the micro:bit (should be easy, but the hardware I currently have at hand won't play)
-- [ ] Automatic build of standalone application and test on different platforms (Windows, Linux, Mac OS)
-
-*(This section may be migrated to https://github.com/maehw/ms-teams-hand-detector/issues.)*
-
-#### Building a standalone version
-
-It would be nice to get an executable version without any implicit Python runtime dependency.
-
-```
-pip install pyinstaller
-pyinstaller ms_teams_hand_detector.py
-```
-
-The executable can be found in the `dist` subfolder after a successful build. Don't forget to copy `the-hand.png`.
-
-It would even be cooler if the software could be built using some CI toolchain in the background. This is currently happening in the `feature/github-actions` branch.
-
-*Implementation and documentation of this section is WIP. I'd be happy if you helped contribute.*
