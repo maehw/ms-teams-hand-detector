@@ -53,10 +53,7 @@ You also need Python 3 and some more Python modules:
 Some Python modules are required for taking screenshots and using computer vision to detect the hand (see the `import` statements at the top of the Python script, some more may be require bot not listed here):
 
 ```
-pip install argparse
-pip install -Iv opencv-python==4.5.3.56
-pip install mss
-pip install pyserial
+pip install -r requirements.txt
 ```
 
 *(Note: `opencv-python` currently needs to be downgraded when creating an executable with PyInstaller; related: https://github.com/maehw/ms-teams-hand-detector/issues/1)*
