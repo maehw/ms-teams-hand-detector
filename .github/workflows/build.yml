@@ -1,5 +1,3 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CI
 on:
   # Triggers the workflow on push event for the current feature branch
@@ -50,17 +48,17 @@ jobs:
         include:
           - os: windows-latest
             TARGET: windows
-            ZIP_COMMAND: dir && cd ./dist && dir
+            PREPARE_ASSET: cd ./dist/ms_teams_hand_detector && dir
             OUT_FILE_NAME: ms-teams-hand-detector_windows.exe
             CONTENT_TYPE: application/vnd.microsoft.portable-executable
           #- os: ubuntu-latest
           #  TARGET: ubuntu
-          #  ZIP_COMMAND: zip -r ms-teams-hand-detector_ubuntu.zip dist
+          #  PREPARE_ASSET: zip -r ms-teams-hand-detector_ubuntu.zip dist
           #  OUT_FILE_NAME: ms-teams-hand-detector_ubuntu.zip
           #  CONTENT_TYPE: application/zip
           #- os: macos-latest
           #  TARGET: macos
-          #  ZIP_COMMAND: zip -r ms-teams-hand-detector_macos.zip dist
+          #  PREPARE_ASSET: zip -r ms-teams-hand-detector_macos.zip dist
           #  OUT_FILE_NAME: ms-teams-hand-detector_macos.zip
           #  CONTENT_TYPE: application/zip
     steps:
@@ -84,8 +82,8 @@ jobs:
       - name: Run PyInstaller on ${{matrix.TARGET}} for creation of executable
         run: pyinstaller ms_teams_hand_detector.py
 
-      - name: Zip the executable
-        run: ${{matrix.ZIP_COMMAND}}
+      - name: Prepare asset (move/zip)
+        run: ${{matrix.PREPARE_ASSET}}
 
       - name: Load Release URL File from release job
         uses: actions/download-artifact@v1
