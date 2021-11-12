@@ -3,13 +3,11 @@ on:
   # Triggers the workflow on push event for the current feature branch
   pull_request:
   push:
-    # for now (still testing things):
-    branches: [ feature/github-actions ]
-    # for later:
-    # tags:
-    #  - 'v*' # Push events to matching v*, i.e. v0.1.0, v0.1.1, etc.
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+    # for testing build from specific feature branch:
+    # branches: [ feature/xyz ]
+    # release tagges versions:
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v0.1.0, v0.1.1, etc.
 jobs:
   createrelease:
     name: Create release
