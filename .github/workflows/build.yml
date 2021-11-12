@@ -8,11 +8,8 @@ on:
     # for later:
     # tags:
     #  - 'v*' # Push events to matching v*, i.e. v0.1.0, v0.1.1, etc.
-
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   createrelease:
     name: Create release
@@ -51,14 +48,14 @@ jobs:
             # default shell on Windows seems to be PowerShell
             PREPARE_ASSET: Compress-Archive -Path ./dist/ms_teams_hand_detector -DestinationPath ms-teams-hand-detector_windows.zip
             OUT_FILE_NAME: ms-teams-hand-detector_windows.zip
-          #- os: ubuntu-latest
-          #  TARGET: ubuntu
-          #  PREPARE_ASSET: zip -r ms-teams-hand-detector_ubuntu.zip ./dist/ms_teams_hand_detector
-          #  OUT_FILE_NAME: ms-teams-hand-detector_ubuntu.zip
-          #- os: macos-latest
-          #  TARGET: macos
-          #  PREPARE_ASSET: zip -r ms-teams-hand-detector_macos.zip ./dist/ms_teams_hand_detector
-          #  OUT_FILE_NAME: ms-teams-hand-detector_macos.zip
+          - os: ubuntu-latest
+            TARGET: ubuntu
+            PREPARE_ASSET: zip -r ms-teams-hand-detector_ubuntu.zip ./dist/ms_teams_hand_detector
+            OUT_FILE_NAME: ms-teams-hand-detector_ubuntu.zip
+          - os: macos-latest
+            TARGET: macos
+            PREPARE_ASSET: zip -r ms-teams-hand-detector_macos.zip ./dist/ms_teams_hand_detector
+            OUT_FILE_NAME: ms-teams-hand-detector_macos.zip
     steps:
       # Checks-out the repository under $GITHUB_WORKSPACE, so the job can access it
       - uses: actions/checkout@v2
