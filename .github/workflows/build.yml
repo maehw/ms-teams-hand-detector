@@ -48,9 +48,10 @@ jobs:
         include:
           - os: windows-latest
             TARGET: windows
-            PREPARE_ASSET: copy ./dist/ms_teams_hand_detector/ms_teams_hand_detector.exe ms-teams-hand-detector_windows.exe
-            OUT_FILE_NAME: ms-teams-hand-detector_windows.exe
-            CONTENT_TYPE: application/vnd.microsoft.portable-executable
+            # default shell on Windows seems to be PowerShell
+            PREPARE_ASSET: Compress-Archive -Path ./dist/ms_teams_hand_detector -DestinationPath ms-teams-hand-detector_windows.zip
+            OUT_FILE_NAME: ms-teams-hand-detector_windows.zip
+            CONTENT_TYPE: application/zip
           #- os: ubuntu-latest
           #  TARGET: ubuntu
           #  PREPARE_ASSET: zip -r ms-teams-hand-detector_ubuntu.zip dist
