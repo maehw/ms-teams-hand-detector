@@ -148,3 +148,4 @@ jobs:
           asset_path: ./CHANGELOG.md
           asset_name: CHANGELOG.md
           asset_content_type: text/markdown
+        if: matrix.os == 'windows-latest'  # lazy & hacky version of how uploading this only once (though being in a matrix)
