@@ -5,10 +5,10 @@ on:
   push:
     # for testing build from specific feature branch:
     # (note: do not forget to modify tag_name and release_name when doing so!)
-    branches: [ feature/build-gui-version ]
-    # release tagges versions:
-    # tags:
-    #  - 'v*' # Push events to matching v*, i.e. v0.1.0, v0.1.1, etc.
+    # branches: [ feature/build-gui-version ]
+    # release tagged versions:
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v0.1.0, v0.1.1, etc.
 jobs:
   createrelease:
     name: Create release
@@ -24,11 +24,11 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.ref }}
-        # release_name: Release ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
         # use the following two lines for testing/ release candidates (e.g. in combination with a feature branch)
         # tag_name: "rc-${{ steps.datetime.outputs.datetime }}"
-        release_name: "RC ${{ steps.datetime.outputs.datetime }}"
-        draft: true
+        # release_name: "RC ${{ steps.datetime.outputs.datetime }}"
+        draft: false
         prerelease: true
     - name: Output Release URL File
       run: echo "${{ steps.create_release.outputs.upload_url }}" > release_url.txt
