@@ -2,13 +2,13 @@
 
 ## What is this?
 
-The Python script in this repository detects when meeting participants in Microsoft Teams meetings raise or lower their virtual hand. Microsoft did not seem to provide an application programming interface (API) ([Microsoft Q&A: Is there a way to detect raised hand during an online meeting using API](https://docs.microsoft.com/en-us/answers/questions/173770/is-there-a-way-to-detect-raised-hand-during-an-onl.html)), so this project has been started as a workaround. Related: [Microsoft Support: Raise your hand in a Teams meeting / See who has their hand raised](https://support.microsoft.com/en-us/office/raise-your-hand-in-a-teams-meeting-bb2dd8e1-e6bd-43a6-85cf-30822667b372).
+The Python script in this repository detects when meeting participants in Microsoft Teams meetings raise or lower their virtual hand - and takes action to give it more emphasis in the real world. Microsoft did not seem to provide an application programming interface (API) ([Microsoft Q&A: Is there a way to detect raised hand during an online meeting using API](https://docs.microsoft.com/en-us/answers/questions/173770/is-there-a-way-to-detect-raised-hand-during-an-onl.html)), so this project has been started as a workaround. Related: [Microsoft Support: Raise your hand in a Teams meeting / See who has their hand raised](https://support.microsoft.com/en-us/office/raise-your-hand-in-a-teams-meeting-bb2dd8e1-e6bd-43a6-85cf-30822667b372).
 
-The detection result is output to the console (standard output). Additionally, a string can be sent to a serial device when a hand is raised or lowered. Currently only two state transitions cause those events: *no hand → first hand* and *at least one hand → no hand* (e.g. not also one hand → two hands).
+There are currently two versions of the Python script: a command-line based one (`cli.py`) and a GUI-based one (`gui.py`). In both cases the detection result is output (to the console via standard output or as a text label in the GUI). Additionally, a string can be sent to a serial device when a hand is raised or lowered. Currently only two state transitions cause those events: *no hand → first hand* and *at least one hand → no hand* (e.g. not also one hand → two hands).
 
 The device being connected to the serial can perform any reaction, e.g. play an animation, make a sound or move a stepper motor - but basically everything is possible. In my case I've used a micro:bit which does all three reactions.
 
-It should be easy to implement own actions/reactions to raised/lowered hands (the edge detection is already in use).
+It should be easy to connect different hardware and to implement own actions/reactions to raised/lowered hands (the edge detection is already in use).
 
 It's originally meant for meetings that are "hybrid" - some people take part in presence, some only digitally/online (better wording is welcome; native speakers are welcome to suggest something else). This should allow online participants to become more visible by a group of participants in real-life.
 
@@ -18,7 +18,7 @@ This is not about gesture recognition - the script does not detect raised hands 
 
 ## How does it work?
 
-The detection logic is all done in the Python script `ms_teams_hand_detector.py`.
+The detection logic is all done in the Python scripts `cli.py`/`gui.py`.
 
 The detection is based on computer vision (OpenCV) pattern matching using a reference symbol. The script regularly takes screenshots and watches out for the raised hand symbol. That also means that the computer where the script is run needs to be connected to the meeting using Microsoft Teams and the list of participants needs to be visible. *(Depending on your operating system you may have to grant the script the rights to take screenshots - this could be hidden in application privacy settings.)*
 
@@ -50,7 +50,7 @@ First of all you need a computer running Microsoft Teams.
 
 Take a screenshot of the raised hand symbol that is shown in Microsoft Teams in the participants list on the right hand side. Then cut it (about 32 x 32 pixels) and place it in the same folder as the Python script. Replace the dummy image file `the-hand.png` (or specify a different name). It is not part of this repository due to copyright uncertainties. Also it may be subject to change in future releases of Microsoft Teams.
 
-You also need Python 3 and some more Python modules (when you do not use the pre-built standalone executable):
+You also need Python 3 and some more Python modules (when you do not use the pre-built standalone executables):
 
 Some Python modules are required for taking screenshots and using computer vision to detect the hand (see the `import` statements at the top of the Python script):
 
@@ -63,7 +63,20 @@ pip install -r requirements.txt
 If you want to react, you may also want to use a BBC micro:bit, but any other hardware should do the trick (e.g. any  Arduino board).
 
 
-Call the script using Python 3:
+### GUI version
+
+Call the script `gui.py` using Python 3:
+
+```
+python3 gui.py
+```
+
+Every required setting can be made from within the GUI.
+
+
+### CLI version
+
+Call the script `cli.py` using Python 3:
 
 The following parameter is required if you want to send messages via serial interface (you can leave it, if output to the console is enough for your use case):
 
@@ -78,30 +91,30 @@ Optional arguments are:
 
 ![Screenshot of the script's standard output in a terminal](executed-script.png)
 
-### Example calls
+#### Example calls
 
 Only output to console (only if `debug = True`):
 
 ```
-python3 ms_teams_hand_detector.py
+python3 cli.py
 ```
 
 Output to console and send messages via serial:
 
 ```
-python3 ms_teams_hand_detector.py -p /dev/cu.usbmodem14202
+python3 cli.py -p /dev/cu.usbmodem14202
 ```
 
 Additionally set a custom threshold value:
 
 ```
-python3 ms_teams_hand_detector.py -p COM5 -t 23.5e4
+python3 cli.py -p COM5 -t 23.5e4
 ```
 
 Additionally select another monitor/display and define the hand symbol image resource:
 
 ```
-python3 ms_teams_hand_detector.py -p COM5 -t 4.2e6 -m 1 -r the-hand-modified.png
+python3 cli.py -p COM5 -t 4.2e6 -m 1 -r the-hand-modified.png
 ```
 
 ## How can I help improving this?
