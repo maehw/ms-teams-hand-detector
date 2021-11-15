@@ -8,7 +8,7 @@ on:
     # branches: [ feature/build-gui-version ]
     # release tagged versions:
     tags:
-      - 'v*' # Push events to matching v*, i.e. v0.1.0, v0.1.1, etc.
+    - 'v*' # Push events to matching v*, i.e. v0.1.0, v0.1.1, etc.
 jobs:
   createrelease:
     name: Create release
@@ -136,3 +136,15 @@ jobs:
           asset_path: ${{ matrix.OUT_FILE_NAME_CLI}}
           asset_name: ${{ matrix.OUT_FILE_NAME_CLI}}
           asset_content_type: application/zip
+
+      - name: Upload CHANGELOG as release asset
+        id: upload-release-asset-doc
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_release_info.outputs.upload_url }}
+          asset_path: ./CHANGELOG.md
+          asset_name: CHANGELOG.md
+          asset_content_type: text/markdown
+        if: matrix.os == 'windows-latest'  # lazy & hacky version of how uploading this only once (though being in a matrix)
