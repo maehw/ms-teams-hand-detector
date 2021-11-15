@@ -52,18 +52,21 @@ jobs:
             PREPARE_ASSET_GUI: Compress-Archive -Path ./dist/gui -DestinationPath windows_gui.zip
             OUT_FILE_NAME_CLI: windows_cli.zip
             OUT_FILE_NAME_GUI: windows_gui.zip
+            CLEAN_BETWEEN_BUILDS: rmdir /s ./build && rmdir /s ./dist && rmdir /s __pycache__ 
           - os: ubuntu-latest
             TARGET: ubuntu
             PREPARE_ASSET_CLI: zip -r ubuntu_cli.zip ./dist/cli
             PREPARE_ASSET_GUI: zip -r ubuntu_gui.zip ./dist/gui
             OUT_FILE_NAME_CLI: ubuntu_cli.zip
             OUT_FILE_NAME_GUI: ubuntu_gui.zip
+            CLEAN_BETWEEN_BUILDS: rm -rf ./build && rm -rf ./dist && rm -rf __pycache__
           - os: macos-latest
             TARGET: macos
             PREPARE_ASSET_CLI: zip -r macos_cli.zip ./dist/cli
             PREPARE_ASSET_GUI: zip -r macos_gui.zip ./dist/gui
             OUT_FILE_NAME_CLI: macos_cli.zip
             OUT_FILE_NAME_GUI: macos_gui.zip
+            CLEAN_BETWEEN_BUILDS: rm -rf ./build && rm -rf ./dist && rm -rf __pycache__
     steps:
       # Checks-out the repository under $GITHUB_WORKSPACE, so the job can access it
       - uses: actions/checkout@v2
@@ -103,7 +106,7 @@ jobs:
           echo ::set-output name=upload_url::$value
 
       - name: Upload release asset (GUI)
-        id: upload-release-asset
+        id: upload-release-asset-gui
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -111,4 +114,25 @@ jobs:
           upload_url: ${{ steps.get_release_info.outputs.upload_url }}
           asset_path: ${{ matrix.OUT_FILE_NAME_GUI}}
           asset_name: ${{ matrix.OUT_FILE_NAME_GUI}}
+          asset_content_type: application/zip
+
+      - name: Run PyInstaller on ${{matrix.TARGET}} for creation of executable (CLI)
+        run: |
+          ${{matrix.CLEAN_BETWEEN_BUILDS}}
+          pyinstaller cli.py
+
+      - name: Prepare asset (CLI)
+        run: |
+          cp the-hand.png ./dist/cli 
+          ${{matrix.PREPARE_ASSET_CLI}}
+
+      - name: Upload release asset (CLI)
+        id: upload-release-asset-cli
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_release_info.outputs.upload_url }}
+          asset_path: ${{ matrix.OUT_FILE_NAME_CLI}}
+          asset_name: ${{ matrix.OUT_FILE_NAME_CLI}}
           asset_content_type: application/zip
