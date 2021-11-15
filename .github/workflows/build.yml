@@ -5,8 +5,8 @@ on:
   push:
     # for testing build from specific feature branch:
     # (note: do not forget to modify tag_name and release_name when doing so!)
-    # branches: [ feature/xyz ]
-    # release tagges versions:
+    # branches: [ feature/build-gui-version ]
+    # release tagged versions:
     tags:
       - 'v*' # Push events to matching v*, i.e. v0.1.0, v0.1.1, etc.
 jobs:
@@ -47,17 +47,26 @@ jobs:
         include:
           - os: windows-latest
             TARGET: windows
-            # default shell on Windows seems to be PowerShell
-            PREPARE_ASSET: Compress-Archive -Path ./dist/ms_teams_hand_detector -DestinationPath ms-teams-hand-detector_windows.zip
-            OUT_FILE_NAME: ms-teams-hand-detector_windows.zip
+            # default shell on Windows seems to be PowerShell (this is also why `rmdir` cannot be used)
+            PREPARE_ASSET_CLI: Compress-Archive -Path ./dist/cli -DestinationPath windows_cli.zip
+            PREPARE_ASSET_GUI: Compress-Archive -Path ./dist/gui -DestinationPath windows_gui.zip
+            OUT_FILE_NAME_CLI: windows_cli.zip
+            OUT_FILE_NAME_GUI: windows_gui.zip
+            CLEAN_BETWEEN_BUILDS: Remove-Item -Path ./build -Force -Recurse; Remove-Item -Path ./dist -Force -Recurse; Remove-Item -Path ./__pycache__ -Force -Recurse
           - os: ubuntu-latest
             TARGET: ubuntu
-            PREPARE_ASSET: zip -r ms-teams-hand-detector_ubuntu.zip ./dist/ms_teams_hand_detector
-            OUT_FILE_NAME: ms-teams-hand-detector_ubuntu.zip
+            PREPARE_ASSET_CLI: zip -r ubuntu_cli.zip ./dist/cli
+            PREPARE_ASSET_GUI: zip -r ubuntu_gui.zip ./dist/gui
+            OUT_FILE_NAME_CLI: ubuntu_cli.zip
+            OUT_FILE_NAME_GUI: ubuntu_gui.zip
+            CLEAN_BETWEEN_BUILDS: rm -rf ./build && rm -rf ./dist && rm -rf __pycache__
           - os: macos-latest
             TARGET: macos
-            PREPARE_ASSET: zip -r ms-teams-hand-detector_macos.zip ./dist/ms_teams_hand_detector
-            OUT_FILE_NAME: ms-teams-hand-detector_macos.zip
+            PREPARE_ASSET_CLI: zip -r macos_cli.zip ./dist/cli
+            PREPARE_ASSET_GUI: zip -r macos_gui.zip ./dist/gui
+            OUT_FILE_NAME_CLI: macos_cli.zip
+            OUT_FILE_NAME_GUI: macos_gui.zip
+            CLEAN_BETWEEN_BUILDS: rm -rf ./build && rm -rf ./dist && rm -rf __pycache__
     steps:
       # Checks-out the repository under $GITHUB_WORKSPACE, so the job can access it
       - uses: actions/checkout@v2
@@ -70,25 +79,25 @@ jobs:
       - name: Install dependencies for testing
         run: pip install -r requirements.txt
 
-      - name: Call the Python script to show its usage
-        run: python ms_teams_hand_detector.py --help
+      # - name: Call the Python script to show its usage
+      #  run: python cli.py --help
 
       - name: Install dependencies for deployment
         run: pip install pyinstaller
 
-      - name: Run PyInstaller on ${{matrix.TARGET}} for creation of executable
-        run: pyinstaller ms_teams_hand_detector.py
+      - name: Run PyInstaller on ${{matrix.TARGET}} for creation of executable (GUI)
+        run: pyinstaller gui.py
 
-      - name: Prepare asset
+      - name: Prepare asset (GUI)
         run: |
-          cp the-hand.png ./dist/ms_teams_hand_detector
-          ${{matrix.PREPARE_ASSET}}
+          cp the-hand.png ./dist/gui
+          ${{matrix.PREPARE_ASSET_GUI}}
 
       - name: Load Release URL File from release job
         uses: actions/download-artifact@v1
         with:
           name: release_url
-  
+
       - name: Get release file name and upload URL
         id: get_release_info
         shell: bash
@@ -96,13 +105,34 @@ jobs:
           value=`cat release_url/release_url.txt`
           echo ::set-output name=upload_url::$value
 
-      - name: Upload release asset
-        id: upload-release-asset
+      - name: Upload release asset (GUI)
+        id: upload-release-asset-gui
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.get_release_info.outputs.upload_url }}
-          asset_path: ${{ matrix.OUT_FILE_NAME}}
-          asset_name: ${{ matrix.OUT_FILE_NAME}}
+          asset_path: ${{ matrix.OUT_FILE_NAME_GUI}}
+          asset_name: ${{ matrix.OUT_FILE_NAME_GUI}}
+          asset_content_type: application/zip
+
+      - name: Run PyInstaller on ${{matrix.TARGET}} for creation of executable (CLI)
+        run: |
+          ${{matrix.CLEAN_BETWEEN_BUILDS}}
+          pyinstaller cli.py
+
+      - name: Prepare asset (CLI)
+        run: |
+          cp the-hand.png ./dist/cli 
+          ${{matrix.PREPARE_ASSET_CLI}}
+
+      - name: Upload release asset (CLI)
+        id: upload-release-asset-cli
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_release_info.outputs.upload_url }}
+          asset_path: ${{ matrix.OUT_FILE_NAME_CLI}}
+          asset_name: ${{ matrix.OUT_FILE_NAME_CLI}}
           asset_content_type: application/zip
