@@ -47,12 +47,12 @@ jobs:
         include:
           - os: windows-latest
             TARGET: windows
-            # default shell on Windows seems to be PowerShell
+            # default shell on Windows seems to be PowerShell (this is also why `rmdir` cannot be used)
             PREPARE_ASSET_CLI: Compress-Archive -Path ./dist/cli -DestinationPath windows_cli.zip
             PREPARE_ASSET_GUI: Compress-Archive -Path ./dist/gui -DestinationPath windows_gui.zip
             OUT_FILE_NAME_CLI: windows_cli.zip
             OUT_FILE_NAME_GUI: windows_gui.zip
-            CLEAN_BETWEEN_BUILDS: rmdir "./build" /s && rmdir "./dist" /s && rmdir "./__pycache__" /s
+            CLEAN_BETWEEN_BUILDS: Remove-Item -Path ./build -Force -Recurse; Remove-Item -Path ./dist -Force -Recurse; Remove-Item -Path ./__pycache__ -Force -Recurse
           - os: ubuntu-latest
             TARGET: ubuntu
             PREPARE_ASSET_CLI: zip -r ubuntu_cli.zip ./dist/cli
