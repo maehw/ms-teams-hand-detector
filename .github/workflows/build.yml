@@ -52,7 +52,7 @@ jobs:
             PREPARE_ASSET_GUI: Compress-Archive -Path ./dist/gui -DestinationPath windows_gui.zip
             OUT_FILE_NAME_CLI: windows_cli.zip
             OUT_FILE_NAME_GUI: windows_gui.zip
-            CLEAN_BETWEEN_BUILDS: rmdir /s ./build && rmdir /s ./dist && rmdir /s __pycache__ 
+            CLEAN_BETWEEN_BUILDS: rmdir /s "./build" && rmdir /s "./dist" && rmdir /s "./__pycache__" 
           - os: ubuntu-latest
             TARGET: ubuntu
             PREPARE_ASSET_CLI: zip -r ubuntu_cli.zip ./dist/cli
