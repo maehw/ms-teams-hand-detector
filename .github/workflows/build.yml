@@ -5,10 +5,10 @@ on:
   push:
     # for testing build from specific feature branch:
     # (note: do not forget to modify tag_name and release_name when doing so!)
-    # branches: [ feature/xyz ]
+    branches: [ feature/build-gui-version ]
     # release tagges versions:
-    tags:
-      - 'v*' # Push events to matching v*, i.e. v0.1.0, v0.1.1, etc.
+    # tags:
+    #  - 'v*' # Push events to matching v*, i.e. v0.1.0, v0.1.1, etc.
 jobs:
   createrelease:
     name: Create release
@@ -24,11 +24,11 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        # release_name: Release ${{ github.ref }}
         # use the following two lines for testing/ release candidates (e.g. in combination with a feature branch)
         # tag_name: "rc-${{ steps.datetime.outputs.datetime }}"
-        # release_name: "RC ${{ steps.datetime.outputs.datetime }}"
-        draft: false
+        release_name: "RC ${{ steps.datetime.outputs.datetime }}"
+        draft: true
         prerelease: true
     - name: Output Release URL File
       run: echo "${{ steps.create_release.outputs.upload_url }}" > release_url.txt
@@ -48,15 +48,15 @@ jobs:
           - os: windows-latest
             TARGET: windows
             # default shell on Windows seems to be PowerShell
-            PREPARE_ASSET: Compress-Archive -Path ./dist/ms_teams_hand_detector -DestinationPath ms-teams-hand-detector_windows.zip
+            PREPARE_ASSET: Compress-Archive -Path ./dist/gui -DestinationPath ms-teams-hand-detector_windows.zip
             OUT_FILE_NAME: ms-teams-hand-detector_windows.zip
           - os: ubuntu-latest
             TARGET: ubuntu
-            PREPARE_ASSET: zip -r ms-teams-hand-detector_ubuntu.zip ./dist/ms_teams_hand_detector
+            PREPARE_ASSET: zip -r ms-teams-hand-detector_ubuntu.zip ./dist/gui
             OUT_FILE_NAME: ms-teams-hand-detector_ubuntu.zip
           - os: macos-latest
             TARGET: macos
-            PREPARE_ASSET: zip -r ms-teams-hand-detector_macos.zip ./dist/ms_teams_hand_detector
+            PREPARE_ASSET: zip -r ms-teams-hand-detector_macos.zip ./dist/gui
             OUT_FILE_NAME: ms-teams-hand-detector_macos.zip
     steps:
       # Checks-out the repository under $GITHUB_WORKSPACE, so the job can access it
@@ -70,18 +70,18 @@ jobs:
       - name: Install dependencies for testing
         run: pip install -r requirements.txt
 
-      - name: Call the Python script to show its usage
-        run: python ms_teams_hand_detector.py --help
+      # - name: Call the Python script to show its usage
+      #  run: python ms_teams_hand_detector.py --help
 
       - name: Install dependencies for deployment
         run: pip install pyinstaller
 
       - name: Run PyInstaller on ${{matrix.TARGET}} for creation of executable
-        run: pyinstaller ms_teams_hand_detector.py
+        run: pyinstaller gui.py
 
       - name: Prepare asset
         run: |
-          cp the-hand.png ./dist/ms_teams_hand_detector
+          cp the-hand.png ./dist/gui
           ${{matrix.PREPARE_ASSET}}
 
       - name: Load Release URL File from release job
