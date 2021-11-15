@@ -74,6 +74,9 @@ python3 gui.py
 Every required setting can be made from within the GUI.
 
 
+![GUI running the detection loop](gui-running.png)
+
+
 ### CLI version
 
 Call the script `cli.py` using Python 3:
