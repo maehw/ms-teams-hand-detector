@@ -10,23 +10,34 @@ from datetime import datetime
 
 
 lbl_det_rate_resetval = '-'
-btn_det_startstop_start = 'Start detection'
-btn_det_startstop_stop = 'Stop detection'
-processing_interval_msecs = 500  # also acts as rate limiter
+lbl_det_max_resetval = '-'
+btn_det_startstop_start = 'Start'
+btn_det_startstop_stop = 'Stop'
+display_prefix = 'Display #'
 combo_serial_dev_none = 'Do not use serial device'
-template_img = cv2.imread("the-hand.png")  # FIXME
+raised_hand_detected_text = 'Raised hand detected'
+raised_hand_not_detected_text = 'Raised hand not detected'
+detection_not_started_text = 'Detection not started'
+template_img_filename = 'the-hand.png'
+serial_msg_on_raised_default = 'PAS\\r'
+serial_msg_on_lowered_default = 'pas\\r'
+processing_interval_msecs = 200  # also acts as rate limiter (max. 1000/processing_interval_msecs detections per second)
+baudrates = sorted([9600, 19200, 38400, 57600, 115200, 230400], reverse=True)
+baudrate_default = 115200
+ser = None
+selected_display_num = 0
+detection_threshold = float('inf')
+last_detection_result = None
+
+last_time = time.time()
+template_img = cv2.imread(template_img_filename)
 template_img = cv2.cvtColor(template_img, cv2.COLOR_BGR2GRAY)
 template_img = cv2.Canny(template_img, 50, 200)
 template_img_w, template_img_h = template_img.shape[::-1]
-raised_hand_detected_text = 'Raised hand detected'
-raised_hand_not_detected_text = 'Raised hand not detected'
-
-ser = None
-last_time = time.time()
-
 
 
 def refresh_serial_dev_list():
+    """rebuild list of serial devices"""
     combo_serial_dev['values'] = []
     for dev in serial.tools.list_ports.comports():
         combo_serial_dev['values'] = (*combo_serial_dev['values'], dev)
@@ -34,44 +45,63 @@ def refresh_serial_dev_list():
     combo_serial_dev['state'] = 'readonly'
     combo_serial_dev.current(0)
 
+
 def refresh_display_list():
+    """rebuild list of displays"""
     combo_display['values'] = []
     display_id = 0
     with mss.mss(display=':0') as sct:
         for display in sct.monitors:
-            display_str = f"Display #{display_id} ({display['width']}x{display['height']} pixels)"
+            display_str = f"{display_prefix}{display_id} ({display['width']}x{display['height']} pixels)"
             combo_display['values'] = (*combo_display['values'], display_str)
-            # print(f"display_str = {display_str}, display = {display}")
             display_id += 1
     combo_display['state'] = 'readonly'
     combo_display.current(0)
 
+
 def startstop_detection():
+    """start or stop the detection"""
     global ser
+    global selected_display_num
+    global detection_threshold
+    global last_detection_result
+    global serial_msg_on_raised
+    global serial_msg_on_lowered
     if btn_det_startstop['text'] == btn_det_startstop_start:
         # start
         btn_det_startstop['text'] = btn_det_startstop_stop
         ctrl_state = tk.DISABLED
-
+        # get the display number
+        selected_display = combo_display.get()
+        selected_display = selected_display[len(display_prefix):]
+        selected_display_num = int(selected_display.split()[0])
+        # get the detection threshold
+        detection_threshold = float(ent_det_thres.get())
+        # extract serial device name and baudrate from dropdown menu and
+        # create Serial object if valid
         serial_dev_selected = combo_serial_dev.get()
         if serial_dev_selected == combo_serial_dev_none:
             ser = None
         else:
             serial_dev_selected = serial_dev_selected.split(' ', 1)[0]
-            # print(f"serial dev={serial_dev_selected}")
             serial_baudrate = combo_serial_speed.get()
             ser = serial.Serial(serial_dev_selected, serial_baudrate, timeout=3)
-            if ser:
-                print("opened serial device")
+        # save messages to be sent via serial
+        serial_msg_on_raised = ent_msg_raised.get().replace('\\r', '\r').replace('\\n', '\n').encode()
+        serial_msg_on_lowered = ent_msg_lowered.get().replace('\\r', '\r').replace('\\n', '\n').encode()
     else:
-        # stop
+        # stop: reset some of the GUI elements
         btn_det_startstop['text'] = btn_det_startstop_start
         lbl_det_rate['text'] = lbl_det_rate_resetval
+        lbl_det_max['text'] = lbl_det_max_resetval
+        lbl_det_status['text'] = detection_not_started_text
+        last_detection_result = None
         ctrl_state = tk.NORMAL
+        # close serial device if Serial object is valid
         if ser:
             ser.close()
-            print("closed serial device")
-    lbl_det_thres['state'] = ctrl_state
+    # change state of GUI control elements (activate/deactivate)
+    ent_det_thres['state'] = ctrl_state
     combo_display['state'] = ctrl_state
     btn_display_refresh['state'] = ctrl_state
     combo_serial_dev['state'] = ctrl_state
@@ -80,52 +110,77 @@ def startstop_detection():
     ent_msg_raised['state'] = ctrl_state
     ent_msg_lowered['state'] = ctrl_state
 
+
 def worker():
+    """perform the detection (core)"""
     global last_time
     global template_img
-    # do the real work
+    global selected_display_num
+    global detection_threshold
+    global last_detection_result
+    global ser
+    global serial_msg_on_raised
+    global serial_msg_on_lowered
+    # do the real work if detection is activated
     if btn_det_startstop['text'] == btn_det_startstop_stop:
-        lbl_det_rate['text'] = 'started'
-
         sct = mss.mss(display=':0')
-        monitors = sct.monitors
-
-        img = sct.grab(monitors[0])  # FIXME
+        img = sct.grab(sct.monitors[selected_display_num])
         img = np.array(img)
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         edged = cv2.Canny(gray, 50, 200)
 
         result = cv2.matchTemplate(edged, template_img, cv2.TM_CCOEFF)
         (_, detection_max_val, _, detection_max_loc) = cv2.minMaxLoc(result)
+        lbl_det_max['text'] = f"{detection_max_val:.2e} @ pos. {detection_max_loc}"
 
-        loc = np.where(result >= 4.2e6)  # FIXME
+        loc = np.where(result >= detection_threshold)
         detection_result = len(loc[0]) > 0
 
         if detection_result:
             lbl_det_status['text'] = raised_hand_detected_text
         else:
             lbl_det_status['text'] = raised_hand_not_detected_text
+        # edge detection
+        if last_detection_result != detection_result:
+            if detection_result:
+                serial_str = serial_msg_on_raised
+            else:
+                serial_str = serial_msg_on_lowered
 
+            # try to send via serial
+            try:
+                if ser:
+                    ser.write(serial_str)
+            except serial.SerialException as e:
+                if e.errno == 13:  # write failed: [Errno 6] Device not configured
+                    # retry once, may work or may fail; might want to re-open the serial
+                    if ser:
+                        ser.write(serial_str)
+                else:  # do not catch every exception
+                    raise e
+        # store current detection result for next run (for edge detection)
+        last_detection_result = detection_result
+
+        # calculate detection rate
         this_time = time.time()
-        fps = 1 / (this_time - last_time)
-        # print(f"fps = {fps:.2f}")
-        lbl_det_rate['text'] = f"{fps:.2f}"
+        detections_per_sec = 1 / (this_time - last_time)
+        lbl_det_rate['text'] = f"{detections_per_sec:.2f}"
         last_time = this_time
 
     window.after(processing_interval_msecs, worker)  # reschedule
 
 
-# GUI prototype (not in use yet)
+# build up the GUI
+# (first the window, then all elements for every row of the grid)
 window = tk.Tk()
 window.title('Microsoft Teams Hand Detector')
-
 
 cur_row = 0
 
 lbl_det_status_descr = tk.Label(text='Detection status')
 lbl_det_status_descr.grid(row=cur_row, column=0, padx='5', pady='5', sticky='w')
 
-lbl_det_status = tk.Label(text='Detection not started')
+lbl_det_status = tk.Label(text=detection_not_started_text)
 lbl_det_status.grid(row=cur_row, column=1, padx='5', pady='5', sticky='w')
 
 btn_det_startstop = tk.Button(text=btn_det_startstop_start, command=startstop_detection)
@@ -143,12 +198,21 @@ lbl_det_rate.grid(row=cur_row, column=1, padx='5', pady='5', sticky='w')
 
 cur_row += 1
 
+lbl_det_max_descr = tk.Label(text='Detection max. value')
+lbl_det_max_descr.grid(row=cur_row, column=0, padx='5', pady='5', sticky='w')
+
+lbl_det_max = tk.Label(text=lbl_det_max_resetval)
+lbl_det_max.grid(row=cur_row, column=1, padx='5', pady='5', sticky='w')
+
+
+cur_row += 1
+
 lbl_det_thres_descr = tk.Label(text='Detection threshold')
 lbl_det_thres_descr.grid(row=cur_row, column=0, padx='5', pady='5', sticky='w')
 
-lbl_det_thres = tk.Entry()
-lbl_det_thres.grid(row=cur_row, column=1, padx='5', pady='5', sticky='w')
-lbl_det_thres.insert(0, '4.2e6')
+ent_det_thres = tk.Entry()
+ent_det_thres.grid(row=cur_row, column=1, padx='5', pady='5', sticky='w')
+ent_det_thres.insert(0, '4.2e6')
 
 
 cur_row += 1
@@ -182,8 +246,6 @@ lbl_serial_speed_descr.grid(row=cur_row, column=0, padx='5', pady='5', sticky='w
 
 combo_serial_speed = ttk.Combobox()
 combo_serial_speed.grid(row=cur_row, column=1, padx='5', pady='5', sticky='w')
-baudrates = sorted([9600, 19200, 38400, 57600, 115200, 230400], reverse=True)
-baudrate_default = 115200
 for br in baudrates:
     combo_serial_speed['values'] = (*combo_serial_speed['values'], (br))
 combo_serial_speed.current(baudrates.index(baudrate_default))
@@ -195,7 +257,7 @@ lbl_msg_raised_descr.grid(row=cur_row, column=0, padx='5', pady='5', sticky='w')
 
 ent_msg_raised = tk.Entry()
 ent_msg_raised.grid(row=cur_row, column=1, padx='5', pady='5', sticky='w')
-ent_msg_raised.insert(0, 'PAS\\r')
+ent_msg_raised.insert(0, serial_msg_on_raised_default)
 
 
 cur_row += 1
@@ -205,12 +267,13 @@ lbl_msg_lowered_descr.grid(row=cur_row, column=0, padx='5', pady='5', sticky='w'
 
 ent_msg_lowered = tk.Entry()
 ent_msg_lowered.grid(row=cur_row, column=1, padx='5', pady='5', sticky='w')
-ent_msg_lowered.insert(0, 'pas\\r')
+ent_msg_lowered.insert(0, serial_msg_on_lowered_default)
 
 
 # call functions to fill lists initially
 refresh_serial_dev_list()
 refresh_display_list()
 
+# kick off the GUI
 window.after(processing_interval_msecs, worker)
 window.mainloop()
